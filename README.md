@@ -109,11 +109,46 @@ agent.export_conversation("chat_history.json")
 │   └── test_agent.py    # Comprehensive test suite
 ├── cli.py               # Command-line interface
 ├── web_server.py        # Web interface (no dependencies!)
+├── demo.py              # Comprehensive demo script
 ├── example.py           # Library usage examples
 ├── setup.py             # Package installation script
 ├── requirements.txt     # Python dependencies
 └── README.md            # This file
 ```
+
+### 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    User Interfaces                       │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │
+│  │  CLI (cli.py)│  │  Web Server  │  │   Library    │ │
+│  │              │  │(web_server.py)│ │   Import     │ │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘ │
+└─────────┼──────────────────┼──────────────────┼─────────┘
+          │                  │                  │
+          └──────────────────┴──────────────────┘
+                             │
+                   ┌─────────▼─────────┐
+                   │   VibeAgent Core  │
+                   │  (agent/agent.py) │
+                   └─────────┬─────────┘
+                             │
+         ┌───────────────────┼───────────────────┐
+         │                   │                   │
+    ┌────▼─────┐      ┌─────▼──────┐     ┌─────▼──────┐
+    │  Memory  │      │Capabilities│     │Conversation│
+    │  System  │      │  (calc,    │     │  History   │
+    │          │      │joke,etc.)  │     │            │
+    └──────────┘      └────────────┘     └────────────┘
+```
+
+**Security Features:**
+- ✅ AST-based mathematical expression evaluation (no `eval()`)
+- ✅ Input validation and sanitization
+- ✅ Error handling for web endpoints
+- ✅ CodeQL security scan: 0 vulnerabilities
+
 
 ### 🧪 Testing
 
