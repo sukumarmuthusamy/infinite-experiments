@@ -11,10 +11,13 @@ A fun, conversational AI agent built for experimentation and learning. Vibe Agen
 - **Math Calculations**: Ask it to compute mathematical expressions
 - **Memory System**: The agent can remember and recall information
 - **Personality**: Friendly, vibing personality with jokes and inspiration
+- **Multiple Interfaces**: CLI and Web UI (no external dependencies!)
 - **No External Dependencies**: Built using Python standard library only
 - **Extensible**: Easy to add new capabilities
 
 ### 🚀 Quick Start
+
+#### Command Line Interface
 
 ```bash
 # Run the agent interactively
@@ -28,6 +31,18 @@ python cli.py --stats
 
 # Export conversation to a file
 python cli.py --export conversation.json
+```
+
+#### Web Interface
+
+```bash
+# Start the web server (no external dependencies!)
+python web_server.py
+
+# Or specify a custom port
+python web_server.py 8080
+
+# Then open your browser to http://localhost:8000
 ```
 
 ### 💬 Example Conversations
@@ -89,9 +104,15 @@ agent.export_conversation("chat_history.json")
 ├── agent/
 │   ├── __init__.py      # Package initialization
 │   └── agent.py         # Core agent implementation
+├── tests/
+│   ├── __init__.py      # Test configuration
+│   └── test_agent.py    # Comprehensive test suite
 ├── cli.py               # Command-line interface
+├── web_server.py        # Web interface (no dependencies!)
+├── example.py           # Library usage examples
+├── setup.py             # Package installation script
 ├── requirements.txt     # Python dependencies
-└── README.md           # This file
+└── README.md            # This file
 ```
 
 ### 🧪 Testing
