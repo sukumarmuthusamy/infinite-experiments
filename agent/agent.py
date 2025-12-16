@@ -69,21 +69,21 @@ class VibeAgent:
         """Generate a response based on user input."""
         input_lower = user_input.lower()
         
-        # Check for specific commands
-        if 'calculate' in input_lower or 'compute' in input_lower:
+        # Check for specific commands (order matters - more specific first)
+        if 'recall' in input_lower or 'what do you remember' in input_lower:
+            return self._handle_recall()
+        elif 'calculate' in input_lower or 'compute' in input_lower:
             return self._handle_calculation(user_input)
         elif 'remember' in input_lower:
             return self._handle_remember(user_input)
-        elif 'recall' in input_lower or 'what do you remember' in input_lower:
-            return self._handle_recall()
         elif 'joke' in input_lower or 'funny' in input_lower:
             return self._tell_joke()
         elif 'inspire' in input_lower or 'motivation' in input_lower:
             return self._inspire()
-        elif any(greeting in input_lower for greeting in ['hello', 'hi', 'hey', 'greetings']):
-            return self._greet()
         elif 'help' in input_lower or 'what can you do' in input_lower:
             return self._show_help()
+        elif any(greeting in input_lower for greeting in ['hello', 'hi', 'hey', 'greetings']):
+            return self._greet()
         else:
             return self._default_response(user_input)
     
