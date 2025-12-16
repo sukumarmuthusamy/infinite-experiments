@@ -3,6 +3,8 @@ Core agent implementation with conversational abilities and task execution.
 """
 
 import json
+import re
+import operator
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 import random
@@ -88,13 +90,44 @@ class VibeAgent:
             return self._default_response(user_input)
     
     def _calculate(self, expression: str) -> float:
-        """Safely evaluate mathematical expressions."""
+        """Safely evaluate mathematical expressions using AST parsing."""
+        import ast
+        
         try:
-            # Simple safe evaluation for basic math
-            allowed_chars = set('0123456789+-*/() .')
-            if not all(c in allowed_chars for c in expression):
-                raise ValueError("Invalid characters in expression")
-            result = eval(expression, {"__builtins__": {}}, {})
+            # Parse the expression into an AST
+            node = ast.parse(expression, mode='eval')
+            
+            # Define safe operations
+            safe_ops = {
+                ast.Add: operator.add,
+                ast.Sub: operator.sub,
+                ast.Mult: operator.mul,
+                ast.Div: operator.truediv,
+                ast.USub: operator.neg,
+            }
+            
+            def eval_node(node):
+                if isinstance(node, ast.Expression):
+                    return eval_node(node.body)
+                elif isinstance(node, ast.Constant):  # Python 3.8+
+                    return float(node.value)
+                elif isinstance(node, ast.BinOp):
+                    left = eval_node(node.left)
+                    right = eval_node(node.right)
+                    op_type = type(node.op)
+                    if op_type not in safe_ops:
+                        raise ValueError(f"Unsupported operation: {op_type.__name__}")
+                    return safe_ops[op_type](left, right)
+                elif isinstance(node, ast.UnaryOp):
+                    operand = eval_node(node.operand)
+                    op_type = type(node.op)
+                    if op_type not in safe_ops:
+                        raise ValueError(f"Unsupported operation: {op_type.__name__}")
+                    return safe_ops[op_type](operand)
+                else:
+                    raise ValueError(f"Unsupported expression type: {type(node).__name__}")
+            
+            result = eval_node(node)
             return float(result)
         except Exception as e:
             raise ValueError(f"Cannot calculate: {e}")
@@ -102,7 +135,6 @@ class VibeAgent:
     def _handle_calculation(self, user_input: str) -> str:
         """Handle calculation requests."""
         # Try to extract numbers and operators
-        import re
         math_pattern = r'[\d+\-*/().\s]+'
         matches = re.findall(math_pattern, user_input)
         

@@ -36,17 +36,45 @@ class VibeAgentHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         """Handle POST requests."""
         if self.path == '/chat':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = json.loads(post_data.decode('utf-8'))
-            
-            message = data.get('message', '')
-            response = agent.process(message)
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'response': response}).encode())
+            try:
+                # Safely read and parse request body
+                content_length = int(self.headers.get('Content-Length', 0))
+                if content_length == 0:
+                    self.send_response(400)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'error': 'Empty request'}).encode())
+                    return
+                
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                
+                message = data.get('message', '')
+                if not message:
+                    self.send_response(400)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'error': 'No message provided'}).encode())
+                    return
+                
+                response = agent.process(message)
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'response': response}).encode())
+            except (ValueError, KeyError, UnicodeDecodeError) as e:
+                # Handle JSON parsing and decoding errors
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': f'Invalid request: {str(e)}'}).encode())
+            except Exception as e:
+                # Handle any other unexpected errors
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': 'Server error'}).encode())
         else:
             self.send_response(404)
             self.end_headers()
